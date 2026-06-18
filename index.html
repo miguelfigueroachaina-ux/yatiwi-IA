@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="YATIWI.AI - Plataforma inteligente de turismo cultural, educación y preservación del patrimonio puneño">
+<meta name="theme-color" content="#6B21A8">
+<title>YATIWI.AI – Sabiduría Cultural de Puno</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #F5F0FF; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* HEADER */
+  header { background: linear-gradient(135deg, #4C1D95, #6B21A8); padding: 14px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  .logo-circle { width: 42px; height: 42px; border-radius: 50%; background: #A855F7; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .header-info { flex: 1; }
+  .header-info h1 { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+  .header-info p { font-size: 12px; color: #E9D5FF; margin-top: 1px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ADE80; flex-shrink: 0; box-shadow: 0 0 6px #4ADE80; }
+
+  /* NAV TABS */
+  nav { background: #fff; border-bottom: 1px solid #E9D5FF; display: flex; overflow-x: auto; }
+  nav button { flex: 1; min-width: 80px; padding: 12px 8px; border: none; background: transparent; font-size: 13px; color: #6B7280; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  nav button.active { color: #6B21A8; border-bottom-color: #6B21A8; font-weight: 600; }
+  nav button:hover:not(.active) { background: #FAF5FF; color: #6B21A8; }
+
+  /* SCREENS */
+  .screen { display: none; flex: 1; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* CHAT SCREEN */
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 85%; display: flex; flex-direction: column; gap: 3px; }
+  .msg.bot { align-self: flex-start; }
+  .msg.user { align-self: flex-end; }
+  .bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.55; }
+  .msg.bot .bubble { background: #fff; border: 1px solid #E9D5FF; color: #1F2937; border-bottom-left-radius: 4px; }
+  .msg.user .bubble { background: #6B21A8; color: #fff; border-bottom-right-radius: 4px; }
+  .msg-time { font-size: 11px; color: #9CA3AF; padding: 0 4px; }
+  .msg.user .msg-time { text-align: right; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .chip { font-size: 12px; padding: 5px 11px; border: 1px solid #A855F7; border-radius: 99px; color: #6B21A8; cursor: pointer; background: #FAF5FF; white-space: nowrap; transition: background 0.15s; }
+  .chip:hover { background: #EDE9FE; }
+  .typing-bubble { background: #fff; border: 1px solid #E9D5FF; border-radius: 18px; border-bottom-left-radius: 4px; padding: 12px 16px; display: flex; gap: 5px; align-items: center; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #A855F7; animation: bounce 1s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+  .chat-input-row { display: flex; gap: 8px; padding: 12px 14px; background: #fff; border-top: 1px solid #E9D5FF; }
+  .chat-input-row input { flex: 1; font-size: 14px; padding: 10px 14px; border: 1px solid #DDD6FE; border-radius: 99px; outline: none; background: #FAF5FF; color: #1F2937; }
+  .chat-input-row input:focus { border-color: #A855F7; }
+  .send-btn { width: 40px; height: 40px; border-radius: 50%; background: #6B21A8; border: none; cursor: pointer; color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+  .send-btn:hover { background: #7C3AED; }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* INFO SCREEN */
+  .screen-scroll { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+  .info-card { background: #fff; border-radius: 16px; border: 1px solid #E9D5FF; padding: 18px; }
+  .info-card h2 { font-size: 15px; font-weight: 700; color: #4C1D95; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .info-card p, .info-card li { font-size: 14px; color: #374151; line-height: 1.6; }
+  .info-card ul { padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .badge { display: inline-block; font-size: 11px; padding: 3px 9px; border-radius: 99px; background: #EDE9FE; color: #4C1D95; font-weight: 600; margin-right: 4px; margin-bottom: 4px; }
+
+  /* MARCADORES MAPA */
+  .marker { position:absolute; transform:translate(-50%,-100%); cursor:pointer; text-align:center; }
+  .marker-pin { width:36px; height:36px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.3); border:2px solid white; }
+  .marker-pin { transform:rotate(0deg); border-radius:50%; }
+  .marker-label { font-size:10px; font-weight:700; color:#1F2937; background:white; border-radius:4px; padding:1px 5px; margin-top:3px; box-shadow:0 1px 3px rgba(0,0,0,0.2); white-space:nowrap; }
+  .marker:hover .marker-pin { transform:scale(1.2); }
+
+  /* SITIOS SCREEN */
+  .site-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .site-card { background: #fff; border-radius: 14px; border: 1px solid #E9D5FF; overflow: hidden; cursor: pointer; transition: transform 0.15s; }
+  .site-card:hover { transform: translateY(-2px); }
+  .site-img { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+  .site-info { padding: 10px 12px; }
+  .site-info h3 { font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 3px; }
+  .site-info p { font-size: 11px; color: #6B7280; }
+
+  /* FOOTER INSTALL */
+  #install-banner { display: none; align-items: center; justify-content: space-between; padding: 10px 16px; background: #4C1D95; color: #fff; font-size: 13px; gap: 10px; }
+  #install-banner button { background: #A855F7; color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-circle">Y</div>
+  <div class="header-info">
+    <h1>YATIWI.AI</h1>
+    <p>Sabiduría e IA para Puno</p>
+  </div>
+  <div class="status-dot" title="En línea"></div>
+</header>
+
+<div id="install-banner">
+  <span>📲 Instala YATIWI.AI en tu celular</span>
+  <button id="install-btn">Instalar App</button>
+</div>
+
+<nav>
+  <button class="active" onclick="showTab('chat',this)">💬 Guía IA</button>
+  <button onclick="showTab('sitios',this)">🗺️ Sitios</button>
+  <button onclick="showTab('info',this)">📖 Cultura</button>
+  <button onclick="showTab('acerca',this)">ℹ️ Acerca</button>
+</nav>
+
+<!-- CHAT -->
+<div class="screen active" id="screen-chat">
+  <div class="chat-messages" id="messages">
+    <div class="msg bot">
+      <div class="bubble">¡Rimaykullayki! Soy <strong>YATIWI.AI</strong>, tu guía inteligente del patrimonio cultural de Puno. Puedo explicarte sobre danzas, sitios turísticos, historia, tradiciones, gastronomía y mucho más. ¿Qué deseas conocer hoy?</div>
+      <div class="msg-time">Ahora</div>
+      <div class="chips">
+        <span class="chip" onclick="sendChip(this)">¿Qué es la Morenada?</span>
+        <span class="chip" onclick="sendChip(this)">Cuéntame sobre el Lago Titicaca</span>
+        <span class="chip" onclick="sendChip(this)">¿Quiénes son los Uros?</span>
+        <span class="chip" onclick="sendChip(this)">Danzas típicas de Puno</span>
+        <span class="chip" onclick="sendChip(this)">¿Qué es Sillustani?</span>
+      </div>
+    </div>
+  </div>
+  <div class="chat-input-row">
+    <input id="userInput" type="text" placeholder="Pregunta sobre la cultura de Puno..." />
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<!-- SITIOS -->
+<div class="screen" id="screen-sitios">
+  <div id="mapa-container" style="position:relative;width:100%;height:260px;overflow:hidden;flex-shrink:0;">
+    <svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%;">
+      <rect width="400" height="260" fill="#BAE6FD"/>
+      <polygon points="0,160 40,80 80,160" fill="#E2E8F0"/><polygon points="30,160 70,70 110,160" fill="#F1F5F9"/><polygon points="60,160 110,60 160,160" fill="#E2E8F0"/><polygon points="280,160 330,75 380,160" fill="#E2E8F0"/><polygon points="310,160 360,65 410,160" fill="#F1F5F9"/>
+      <polygon points="40,80 55,95 25,95" fill="white" opacity="0.9"/><polygon points="70,70 85,88 55,88" fill="white" opacity="0.9"/><polygon points="110,60 125,80 95,80" fill="white" opacity="0.9"/><polygon points="330,75 345,93 315,93" fill="white" opacity="0.9"/>
+      <ellipse cx="200" cy="195" rx="185" ry="65" fill="#0EA5E9" opacity="0.85"/>
+      <ellipse cx="200" cy="195" rx="170" ry="55" fill="#38BDF8" opacity="0.6"/>
+      <ellipse cx="150" cy="185" rx="20" ry="4" fill="white" opacity="0.3"/><ellipse cx="250" cy="200" rx="15" ry="3" fill="white" opacity="0.3"/>
+      <ellipse cx="200" cy="240" rx="200" ry="40" fill="#86EFAC"/>
+      <rect x="0" y="230" width="400" height="30" fill="#4ADE80"/>
+      <text x="200" y="198" text-anchor="middle" fill="white" font-size="11" font-weight="bold" opacity="0.9">Lago Titicaca</text>
+    </svg>
+    <div class="marker" style="top:38%;left:48%" onclick="seleccionarSitio(0)"><div class="marker-pin" style="background:#0EA5E9">🌊</div><div class="marker-label">Titicaca</div></div>
+    <div class="marker" style="top:55%;left:30%" onclick="seleccionarSitio(1)"><div class="marker-pin" style="background:#10B981">🛶</div><div class="marker-label">Uros</div></div>
+    <div class="marker" style="top:50%;left:62%" onclick="seleccionarSitio(2)"><div class="marker-pin" style="background:#8B5CF6">🧵</div><div class="marker-label">Taquile</div></div>
+    <div class="marker" style="top:45%;left:72%" onclick="seleccionarSitio(3)"><div class="marker-pin" style="background:#F59E0B">🏝️</div><div class="marker-label">Amantaní</div></div>
+    <div class="marker" style="top:22%;left:20%" onclick="seleccionarSitio(4)"><div class="marker-pin" style="background:#EF4444">🗿</div><div class="marker-label">Sillustani</div></div>
+    <div class="marker" style="top:72%;left:50%" onclick="seleccionarSitio(5)"><div class="marker-pin" style="background:#6B21A8">⛪</div><div class="marker-label">Catedral</div></div>
+    <div style="position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,0.4);color:white;font-size:10px;padding:3px 7px;border-radius:99px;">Toca un marcador</div>
+  </div>
+  <div id="sitio-card" style="margin:12px 16px;background:#fff;border-radius:16px;border:1px solid #E9D5FF;padding:16px;display:flex;gap:12px;align-items:flex-start;">
+    <div id="sitio-emoji" style="font-size:32px;flex-shrink:0;">🌊</div>
+    <div style="flex:1;">
+      <div id="sitio-nombre" style="font-size:15px;font-weight:700;color:#4C1D95;margin-bottom:4px;">Lago Titicaca</div>
+      <div id="sitio-desc" style="font-size:13px;color:#6B7280;line-height:1.5;margin-bottom:10px;">El lago navegable más alto del mundo a 3,812 m.s.n.m. Cuna de la civilización andina.</div>
+      <button onclick="preguntarSitioIA()" style="background:#6B21A8;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;">🤖 Preguntarle a YATIWI.AI</button>
+    </div>
+  </div>
+  <div class="screen-scroll" style="padding-top:0;">
+    <div class="site-grid" style="padding:0 16px 16px;">
+      <div class="site-card" onclick="seleccionarSitio(0)"><div class="site-img" style="background:#E0F2FE">🌊</div><div class="site-info"><h3>Lago Titicaca</h3><p>3,812 m.s.n.m.</p></div></div>
+      <div class="site-card" onclick="seleccionarSitio(1)"><div class="site-img" style="background:#DCFCE7">🛶</div><div class="site-info"><h3>Islas Uros</h3><p>Islas flotantes</p></div></div>
+      <div class="site-card" onclick="seleccionarSitio(2)"><div class="site-img" style="background:#F3E8FF">🧵</div><div class="site-info"><h3>Isla Taquile</h3><p>Patrimonio UNESCO</p></div></div>
+      <div class="site-card" onclick="seleccionarSitio(3)"><div class="site-img" style="background:#FEF3C7">🏝️</div><div class="site-info"><h3>Isla Amantaní</h3><p>Turismo vivencial</p></div></div>
+      <div class="site-card" onclick="seleccionarSitio(4)"><div class="site-img" style="background:#FEF9C3">🗿</div><div class="site-info"><h3>Sillustani</h3><p>Torres funerarias</p></div></div>
+      <div class="site-card" onclick="seleccionarSitio(5)"><div class="site-img" style="background:#EDE9FE">⛪</div><div class="site-info"><h3>Catedral Puno</h3><p>Barroco andino</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- INFO CULTURA -->
+<div class="screen" id="screen-info">
+  <div class="screen-scroll">
+    <div class="info-card">
+      <h2>🎭 Danzas y Festividades</h2>
+      <p>Puno es la Capital Folclórica del Perú, con más de 300 danzas declaradas Patrimonio Cultural.</p>
+      <div style="margin-top:10px">
+        <span class="badge" onclick="preguntarBadge(this)" style="cursor:pointer">Morenada</span>
+        <span class="badge" onclick="preguntarBadge(this)" style="cursor:pointer">Diablada</span>
+        <span class="badge" onclick="preguntarBadge(this)" style="cursor:pointer">Caporales</span>
+        <span class="badge" onclick="preguntarBadge(this)" style="cursor:pointer">Llamerada</span>
+        <span class="badge" onclick="preguntarBadge(this)" style="cursor:pointer">Candelaria</span>
+      </div>
+    </div>
+    <div class="info-card">
+      <h2>🍽️ Gastronomía</h2>
+      <ul>
+        <li><strong>Trucha del Titicaca</strong> — el plato más representativo</li>
+        <li><strong>Chairo</strong> — sopa andina con chuño y carne</li>
+        <li><strong>Caldo de cabeza</strong> — tradicional de las ferias</li>
+        <li><strong>Quinua</strong> — grano sagrado de los Andes</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h2>🗣️ Idiomas del Altiplano</h2>
+      <p>En Puno conviven el español, el <strong>quechua</strong> (Yachay = sabiduría) y el <strong>aymara</strong> (Yatiwi = conocimiento). Ambas lenguas son reconocidas oficialmente por el Estado peruano.</p>
+    </div>
+    <div class="info-card">
+      <h2>📅 Calendario Cultural</h2>
+      <ul>
+        <li><strong>Feb:</strong> Festividad de la Virgen de la Candelaria</li>
+        <li><strong>May:</strong> Cruz Velacuy</li>
+        <li><strong>Jun:</strong> Inti Raymi en el altiplano</li>
+        <li><strong>Nov:</strong> Aniversario de Puno y emergencia del Manco Cápac</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ACERCA -->
+<div class="screen" id="screen-acerca">
+  <div class="screen-scroll">
+    <div class="info-card" style="text-align:center; padding: 28px 18px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:#6B21A8;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;color:#fff;margin:0 auto 14px;">Y</div>
+      <h2 style="font-size:20px;margin-bottom:6px;">YATIWI.AI</h2>
+      <p style="color:#6B7280;font-size:13px;">Versión 1.0 · Hackathon 2026</p>
+    </div>
+    <div class="info-card">
+      <h2>🎯 Misión</h2>
+      <p>Preservar y difundir el patrimonio cultural de Puno mediante Inteligencia Artificial, conectando la sabiduría ancestral con las nuevas generaciones.</p>
+    </div>
+    <div class="info-card">
+      <h2>⚙️ Tecnología</h2>
+      <ul>
+        <li><strong>IA:</strong> Claude (Anthropic) via API</li>
+        <li><strong>Frontend:</strong> HTML5 + PWA</li>
+        <li><strong>Hosting:</strong> GitHub Pages</li>
+        <li><strong>Instalable:</strong> Progressive Web App</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h2>👥 Equipo</h2>
+      <p>Proyecto presentado en la <strong>Yachay-Yatiwi Hackathon 2026: Sabiduría e IA para Puno</strong>, organizada por la UGEL Puno.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const SYSTEM = `Eres YATIWI.AI, un asistente de inteligencia artificial especializado exclusivamente en el patrimonio cultural, histórico y turístico de la región Puno, Perú.
+
+Tu nombre "Yatiwi" significa conocimiento y sabiduría en Aymara. Combinas tecnología moderna con el saber ancestral del altiplano peruano.
+
+REGLAS:
+- Solo respondes preguntas relacionadas con Puno: historia, cultura, danzas, festividades, sitios turísticos, gastronomía, idiomas (quechua/aymara), personajes históricos, flora y fauna del altiplano, artesanías, costumbres.
+- Si preguntan algo fuera de este tema, responde amablemente que solo puedes hablar de la cultura de Puno.
+- Respuestas claras, educativas y accesibles para estudiantes y turistas.
+- Máximo 3 párrafos cortos por respuesta.
+- Usa palabras en quechua o aymara con su traducción entre paréntesis cuando sea relevante.
+- Muestra siempre orgullo y respeto por la cultura puneña.`;
+
+const messagesEl = document.getElementById('messages');
+const input = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+let history = [];
+
+function getTime() {
+  return new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+}
+
+function addMessage(text, role) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = getTime();
+  div.appendChild(bubble);
+  div.appendChild(time);
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing';
+  div.innerHTML = '<div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typing');
+  if(t) t.remove();
+}
+
+function sendChip(el) { input.value = el.textContent; sendMessage(); }
+
+function preguntarSitio(nombre) {
+  showTab('chat', document.querySelector('nav button'));
+  input.value = `Cuéntame sobre ${nombre}`;
+  sendMessage();
+}
+
+function preguntarBadge(el) {
+  showTab('chat', document.querySelector('nav button'));
+  input.value = `¿Qué es la danza ${el.textContent}?`;
+  sendMessage();
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  else document.querySelector('nav button').classList.add('active');
+}
+
+async function sendMessage() {
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  sendBtn.disabled = true;
+  addMessage(text, 'user');
+  history.push({role:'user', content: text});
+  showTyping();
+  try {
+    const GROQ_KEY = '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';
+    const groqMessages = [{role: 'system', content: SYSTEM}, ...history.map(m => ({role: m.role, content: m.content}))];
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + GROQ_KEY
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: groqMessages,
+        max_tokens: 1024,
+        temperature: 0.7
+      })
+    });
+    const data = await res.json();
+    hideTyping();
+    const reply = data.choices?.[0]?.message?.content || 'Lo siento, intenta de nuevo.';
+    history.push({role:'assistant', content: reply});
+    addMessage(reply, 'bot');
+  } catch(e) {
+    hideTyping();
+    addMessage('Sin conexión. Verifica tu internet e intenta de nuevo.', 'bot');
+  }
+  sendBtn.disabled = false;
+  input.focus();
+}
+
+input.addEventListener('keydown', e => { if(e.key==='Enter') sendMessage(); });
+
+// DATOS DE SITIOS
+const sitios = [
+  { nombre:'Lago Titicaca', emoji:'🌊', desc:'El lago navegable más alto del mundo a 3,812 m.s.n.m., compartido entre Perú y Bolivia. Cuna de la civilización andina y hogar de especies únicas.' },
+  { nombre:'Islas Uros', emoji:'🛶', desc:'Islas flotantes construidas con totora por el pueblo Uro. Una de las maravillas culturales más singulares del planeta, habitadas desde hace siglos.' },
+  { nombre:'Isla Taquile', emoji:'🧵', desc:'Famosa por su arte textil declarado Patrimonio Inmaterial de la UNESCO. Sus habitantes mantienen tradiciones milenarias de tejido y organización comunitaria.' },
+  { nombre:'Isla Amantaní', emoji:'🏝️', desc:'Isla ideal para el turismo vivencial andino. Los visitantes conviven con familias locales y participan en rituales en los templos de Pachatata y Pachamama.' },
+  { nombre:'Sillustani', emoji:'🗿', desc:'Complejo funerario preincaico con torres llamadas chullpas. Construidas por la cultura Colla entre los siglos XII y XV, con vistas panorámicas al lago Umayo.' },
+  { nombre:'Catedral de Puno', emoji:'⛪', desc:'Joya del barroco andino construida en el siglo XVIII. Destaca por su fachada tallada en piedra con motivos indígenas y europeos fusionados.' },
+  { nombre:'Isla Anapia', emoji:'🌿', desc:'La isla más alejada del lago peruano, en el lago Wiñaymarca. Ofrece turismo comunitario, viñedos y una naturaleza casi virgen con vistas espectaculares.' }
+];
+
+let sitioActual = 0;
+
+function seleccionarSitio(idx) {
+  sitioActual = idx;
+  const s = sitios[idx];
+  document.getElementById('sitio-emoji').textContent = s.emoji;
+  document.getElementById('sitio-nombre').textContent = s.nombre;
+  document.getElementById('sitio-desc').textContent = s.desc;
+  // Scroll to card
+  document.getElementById('sitio-card').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function preguntarSitioIA() {
+  const nombre = sitios[sitioActual].nombre;
+  showTab('chat', document.querySelector('nav button'));
+  input.value = 'Cuéntame más sobre ' + nombre + ' en Puno';
+  sendMessage();
+}
+
+// PWA Install
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('install-banner').style.display = 'none';
+  }
+});
+</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js")}</script>
+</body>
+</html>
