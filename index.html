@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="YATIWI.AI - Plataforma inteligente de turismo cultural, educación y preservación del patrimonio puneño">
+<meta name="theme-color" content="#6B21A8">
+<title>YATIWI.AI – Sabiduría Cultural de Puno</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #F5F0FF; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* HEADER */
+  header { background: linear-gradient(135deg, #4C1D95, #6B21A8); padding: 14px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  .logo-circle { width: 42px; height: 42px; border-radius: 50%; background: #A855F7; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .header-info { flex: 1; }
+  .header-info h1 { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+  .header-info p { font-size: 12px; color: #E9D5FF; margin-top: 1px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ADE80; flex-shrink: 0; box-shadow: 0 0 6px #4ADE80; }
+
+  /* NAV TABS */
+  nav { background: #fff; border-bottom: 1px solid #E9D5FF; display: flex; overflow-x: auto; }
+  nav button { flex: 1; min-width: 80px; padding: 12px 8px; border: none; background: transparent; font-size: 13px; color: #6B7280; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  nav button.active { color: #6B21A8; border-bottom-color: #6B21A8; font-weight: 600; }
+  nav button:hover:not(.active) { background: #FAF5FF; color: #6B21A8; }
+
+  /* SCREENS */
+  .screen { display: none; flex: 1; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* CHAT SCREEN */
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 85%; display: flex; flex-direction: column; gap: 3px; }
+  .msg.bot { align-self: flex-start; }
+  .msg.user { align-self: flex-end; }
+  .bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.55; }
+  .msg.bot .bubble { background: #fff; border: 1px solid #E9D5FF; color: #1F2937; border-bottom-left-radius: 4px; }
+  .msg.user .bubble { background: #6B21A8; color: #fff; border-bottom-right-radius: 4px; }
+  .msg-time { font-size: 11px; color: #9CA3AF; padding: 0 4px; }
+  .msg.user .msg-time { text-align: right; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .chip { font-size: 12px; padding: 5px 11px; border: 1px solid #A855F7; border-radius: 99px; color: #6B21A8; cursor: pointer; background: #FAF5FF; white-space: nowrap; transition: background 0.15s; }
+  .chip:hover { background: #EDE9FE; }
+  .typing-bubble { background: #fff; border: 1px solid #E9D5FF; border-radius: 18px; border-bottom-left-radius: 4px; padding: 12px 16px; display: flex; gap: 5px; align-items: center; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #A855F7; animation: bounce 1s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+  .chat-input-row { display: flex; gap: 8px; padding: 12px 14px; background: #fff; border-top: 1px solid #E9D5FF; }
+  .chat-input-row input { flex: 1; font-size: 14px; padding: 10px 14px; border: 1px solid #DDD6FE; border-radius: 99px; outline: none; background: #FAF5FF; color: #1F2937; }
+  .chat-input-row input:focus { border-color: #A855F7; }
+  .send-btn { width: 40px; height: 40px; border-radius: 50%; background: #6B21A8; border: none; cursor: pointer; color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+  .send-btn:hover { background: #7C3AED; }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* INFO SCREEN */
+  .screen-scroll { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+  .info-card { background: #fff; border-radius: 16px; border: 1px solid #E9D5FF; padding: 18px; }
+  .info-card h2 { font-size: 15px; font-weight: 700; color: #4C1D95; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .info-card p, .info-card li { font-size: 14px; color: #374151; line-height: 1.6; }
+  .info-card ul { padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .badge { display: inline-block; font-size: 11px; padding: 3px 9px; border-radius: 99px; background: #EDE9FE; color: #4C1D95; font-weight: 600; margin-right: 4px; margin-bottom: 4px; }
+
+  /* HISTORIA */
+  .epoca-btn { padding:6px 14px; border-radius:99px; border:1px solid #D6D3D1; background:#FAF5FF; color:#44403C; font-size:12px; cursor:pointer; white-space:nowrap; }
+  .epoca-btn.active { background:#44403C; color:#FDE68A; border-color:#44403C; }
+  .evento-card { margin-bottom:16px; margin-left:16px; position:relative; }
+  .evento-punto { position:absolute; left:-22px; top:14px; width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 2px currentColor; }
+  .evento-inner { background:#fff; border-radius:14px; border:1px solid #E7E5E4; padding:14px; }
+  .evento-año { font-size:12px; font-weight:700; margin-bottom:4px; }
+  .evento-titulo { font-size:14px; font-weight:700; color:#1F2937; margin-bottom:4px; }
+  .evento-desc { font-size:13px; color:#6B7280; line-height:1.55; }
+  .evento-tag { font-size:10px; padding:2px 8px; border-radius:99px; font-weight:600; display:inline-block; margin-top:6px; }
+
+  /* FILTROS DANZAS */
+  .filtro-btn { padding:6px 14px; border-radius:99px; border:1px solid #E9D5FF; background:#FAF5FF; color:#6B21A8; font-size:12px; cursor:pointer; white-space:nowrap; transition:all 0.15s; }
+  .filtro-btn.active { background:#6B21A8; color:#fff; border-color:#6B21A8; }
+  .danza-card { background:#fff; border-radius:16px; border:1px solid #E9D5FF; overflow:hidden; }
+  .danza-header { padding:14px 16px; display:flex; align-items:center; gap:12px; cursor:pointer; }
+  .danza-emoji { font-size:32px; width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .danza-info { flex:1; }
+  .danza-nombre { font-size:15px; font-weight:700; color:#1F2937; }
+  .danza-tipo { font-size:11px; font-weight:600; padding:2px 8px; border-radius:99px; display:inline-block; margin-top:3px; }
+  .danza-desc { font-size:13px; color:#6B7280; margin-top:3px; line-height:1.4; }
+  .danza-body { padding:0 16px 14px; border-top:1px solid #F3F4F6; display:none; }
+  .danza-body.open { display:block; }
+  .danza-detalle { font-size:13px; color:#374151; line-height:1.6; margin-top:10px; }
+
+  /* MARCADORES MAPA */
+  .marker { position:absolute; transform:translate(-50%,-100%); cursor:pointer; text-align:center; }
+  .marker-pin { width:36px; height:36px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.3); border:2px solid white; }
+  .marker-pin { transform:rotate(0deg); border-radius:50%; }
+  .marker-label { font-size:10px; font-weight:700; color:#1F2937; background:white; border-radius:4px; padding:1px 5px; margin-top:3px; box-shadow:0 1px 3px rgba(0,0,0,0.2); white-space:nowrap; }
+  .marker:hover .marker-pin { transform:scale(1.2); }
+
+  /* SITIOS SCREEN */
+  .site-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .site-card { background: #fff; border-radius: 14px; border: 1px solid #E9D5FF; overflow: hidden; cursor: pointer; transition: transform 0.15s; }
+  .site-card:hover { transform: translateY(-2px); }
+  .site-img { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+  .site-info { padding: 10px 12px; }
+  .site-info h3 { font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 3px; }
+  .site-info p { font-size: 11px; color: #6B7280; }
+
+  /* FOOTER INSTALL */
+  #install-banner { display: none; align-items: center; justify-content: space-between; padding: 10px 16px; background: #4C1D95; color: #fff; font-size: 13px; gap: 10px; }
+  #install-banner button { background: #A855F7; color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-circle">Y</div>
+  <div class="header-info">
+    <h1>YATIWI.AI</h1>
+    <p>Sabiduría e IA para Puno</p>
+  </div>
+  <div class="status-dot" title="En línea"></div>
+</header>
+
+<div id="install-banner">
+  <span>📲 Instala YATIWI.AI en tu celular</span>
+  <button id="install-btn">Instalar App</button>
+</div>
+
+<nav>
+  <button class="active" onclick="showTab('chat',this)">💬 Guía IA</button>
+  <button onclick="showTab('sitios',this)">🗺️ Sitios</button>
+  <button onclick="showTab('traductor',this)">🗣️ Traductor</button>
+  <button onclick="showTab('recetas',this)">🍽️ Recetas</button>
+  <button onclick="showTab('danzas',this)">💃 Danzas</button>
+  <button onclick="showTab('quiz',this)">🧠 Quiz</button>
+  <button onclick="showTab('calendario',this)">📅 Fiestas</button>
+  <button onclick="showTab('historia',this)">🏛️ Historia</button>
+  <button onclick="showTab('info',this)">📖 Cultura</button>
+  <button onclick="showTab('acerca',this)">ℹ️ Acerca</button>
+</nav>
+
+<!-- CHAT -->
+<div class="screen active" id="screen-chat">
+  <div class="chat-messages" id="messages">
+    <div class="msg bot">
+      <div class="bubble">¡Rimaykullayki! Soy <strong>YATIWI.AI</strong>, tu guía inteligente del patrimonio cultural de Puno. Puedo explicarte sobre danzas, sitios turísticos, historia, tradiciones, gastronomía y mucho más. ¿Qué deseas conocer hoy?</div>
+      <div class="msg-time">Ahora</div>
+      <div class="chips">
+        <span class="chip" onclick="sendChip(this)">¿Qué es la Morenada?</span>
+        <span class="chip" onclick="sendChip(this)">Cuéntame sobre el Lago Titicaca</span>
+        <span class="chip" onclick="sendChip(this)">¿Quiénes son los Uros?</span>
+        <span class="chip" onclick="sendChip(this)">Danzas típicas de Puno</span>
+        <span class="chip" onclick="sendChip(this)">¿Qué es Sillustani?</span>
+      </div>
+    </div>
+  </div>
+  <div class="chat-input-row">
+    <input id="userInput" type="text" placeholder="Pregunta sobre la cultura de Puno..." />
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<!-- SITIOS -->
+<div class="screen" id="screen-sitios">
+  <div id="mapa-container" style="position:relative;width:100%;height:260px;overflow:hidden;flex-shrink:0;">
+    <svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%;">
+      <rect width="400" height="260" fill="#BAE6FD"/>
+      <polygon points="0,160 40,80 80,160" fill="#E2E8F0"/><polygon points="30,160 70,70 110,160" fill="#F1F5F9"/><polygon points="60,160 110,60 160,160" fill="#E2E8F0"/><polygon points="280,160 330,75 380,160" fill="#E2E8F0"/><polygon points="310,160 360,65 410,160" fill="#F1F5F9"/>
+      <polygon points="40,80 55,95 25,95" fill="white" opacity="0.9"/><polygon points="70,70 85,88 55,88" fill="white" opacity="0.9"/><polygon points="110,60 125,80 95,80" fill="white" opacity="0.9"/><polygon points="330,75 345,93 315,93" fill="white" opacity="0.9"/>
+      <ellipse cx="200" cy="195" rx="185" ry="65" fill="#0EA5E9" opacity="0.85"/>
+      <ellipse cx="200" cy="195" rx="170" ry="55" fill="#38BDF8" opacity="0.6"/>
+      <ellipse cx="150" cy="185" rx="20" ry="4" fill="white" opacity="0.3"/><ellipse cx="250" cy="200" rx="15" ry="3" fill="white" opacity="0.3"/>
+      <ellipse cx="200" cy="240" rx="200" ry="40" fill="#86EFAC"/>
+      <rect x="0" y="230" width="400" height="30" fill="#4ADE80"/>
+      <text x="200" y="198" text-anchor="middle" fill="white" font-size="11" font-weight="bold" opacity="0.9">Lago Titicaca</text>
+    </svg>
+    <div class="marker" style="top:38%;left:48%" onclick="seleccionarSitio(0)"><div class="marker-pin" style="background:#0EA5E9">🌊</div><div class="marker-label">Titicaca</div></div>
+    <div class="marker" style="top:55%;left:30%" onclick="seleccionarSitio(1)"><div class="marker-pin" style="background:#10B981">🛶</div><div class="marker-label">Uros</div></div>
+    <div class="marker" style="top:50%;left:62%" onclick="seleccionarSitio(2)"><div class="marker-pin" style="background:#8B5CF6">🧵</div><div class="marker-label">Taquile</div></div>
+    <div class="marker" style="top:45%;left:72%" onclick="seleccionarSitio(3)"><div class="marker-pin" style="background:#F59E0B">🏝️</div><div class="marker-label">Amantaní</div></div>
+    <div class="marker" style="top:22%;left:20%" onclick="seleccionarSitio(4)"><div class="marker-pin" style="background:#EF4444">🗿</div><div class="marker-label">Sillustani</div></div>
+    <div class="marker" style="top:72%;left:50%" onclick="seleccionarSitio(5)"><div class="marker-pin" style="background:#6B21A8">⛪</div><div class="marker-label">Catedral</div></div>
+    <div style="position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,0.4);color:white;font-size:10px;padding:3px 7px;border-radius:99px;">Toca un marcador</div>
+  </div>
+  <div id="sitio-card" style="margin:12px 16px;background:#fff;border-radius:16px;border:1px solid #E9D5FF;padding:16px;display:flex;gap:12px;align-items:flex-start;">
+    <div id="sitio-emoji" style="font-size:32px;flex-shrink:0;">🌊</div>
+    <div style="flex:1;">
+      <div id="sitio-nombre" style="font-size:15px;font-weight:700;color:#4C1D95;margin-bottom:4px;">Lago Titicaca</div>
+      <div id="sitio-desc" style="font-size:13px;color:#6B7280;line-height:1.5;margin-bottom:10px;">El lago navegable más alto del mundo a 3,812 m.s.n.m. Cuna de la civilización andina.</div>
+      <button onclick="preguntarSitioIA()" style="background:#6B21A8;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;">🤖 Preguntarle a YATIWI.AI</button>
+    </div>
+  </div>
+  <div class="screen-scroll" style="padding-top:0;">
+    <div class="site-grid" style="padding:0 16px 16px;">
+      <div class="site-card" onclick="seleccionarSitio(0)"><div class="site-img" style="background:#E0F2FE">🌊</div><div class="site-info"><h3>Lago Titicaca</h3><p>3,812 m.s.n.m.</p></div></div>
+      <div class="site-card" onclick="seleccionarSitio(1)"><div class="site-img" style="background:#DCFCE7">🛶</div><div class="site-info"><h3>Islas Uros</h3><p>Islas flotantes</p></div></div>
+      <div class="site-card" onclick="seleccionarSitio(2)"><div class="site-img" style="background:#F3E8FF">🧵</div><div class="site-info"><h3>Isla Taquile</h3><p>Patrimonio UNESCO</p></div></div>
+      <div class="site-card" onclick="seleccionarSitio(3)"><div class="site-img" style="background:#FEF3C7">🏝️</div><div class="site-info"><h3>Isla Amantaní</h3><p>Turismo vivencial</p></div></div>
+      <div class="site-card" onclick="seleccionarSitio(4)"><div class="site-img" style="background:#FEF9C3">🗿</div><div class="site-info"><h3>Sillustani</h3><p>Torres funerarias</p></div></div>
+      <div class="site-card" onclick="seleccionarSitio(5)"><div class="site-img" style="background:#EDE9FE">⛪</div><div class="site-info"><h3>Catedral Puno</h3><p>Barroco andino</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TRADUCTOR -->
+<div class="screen" id="screen-traductor">
+  <div class="screen-scroll">
+    <div class="info-card" style="background:linear-gradient(135deg,#4C1D95,#6B21A8);border:none;">
+      <h2 style="color:#fff;font-size:17px;">🗣️ Traductor Cultural</h2>
+      <p style="color:#E9D5FF;font-size:13px;margin-top:4px;">Escribe en español y YATIWI.AI traduce al Quechua y Aymara, los idiomas ancestrales del altiplano.</p>
+    </div>
+    <!-- Palabras sugeridas -->
+    <div class="info-card">
+      <h2 style="font-size:13px;">✨ Frases sugeridas</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+        <span class="chip" onclick="traducirFrase(this)">Buenos días</span>
+        <span class="chip" onclick="traducirFrase(this)">Gracias</span>
+        <span class="chip" onclick="traducirFrase(this)">¿Cómo estás?</span>
+        <span class="chip" onclick="traducirFrase(this)">Agua</span>
+        <span class="chip" onclick="traducirFrase(this)">Tierra</span>
+        <span class="chip" onclick="traducirFrase(this)">Sol</span>
+        <span class="chip" onclick="traducirFrase(this)">Bienvenido</span>
+        <span class="chip" onclick="traducirFrase(this)">Lago Titicaca</span>
+      </div>
+    </div>
+    <!-- Input -->
+    <div class="info-card">
+      <h2 style="font-size:13px;">📝 Escribe tu texto</h2>
+      <textarea id="textoTraducir" placeholder="Escribe una palabra o frase en español..." style="width:100%;margin-top:8px;padding:10px;border:1px solid #DDD6FE;border-radius:10px;font-size:14px;resize:none;height:80px;font-family:inherit;outline:none;background:#FAF5FF;color:#1F2937;"></textarea>
+      <button onclick="traducir()" id="btnTraducir" style="width:100%;margin-top:10px;background:#6B21A8;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">🔄 Traducir al Quechua y Aymara</button>
+    </div>
+    <!-- Resultado -->
+    <div id="resultado-traduccion" style="display:none;">
+      <div class="info-card" style="background:#F5F3FF;border-color:#A855F7;">
+        <h2 style="font-size:13px;color:#6B21A8;">🟡 En Quechua <span style="font-weight:400;font-size:11px;">(Yachay)</span></h2>
+        <div id="texto-quechua" style="font-size:18px;font-weight:600;color:#4C1D95;margin-top:8px;line-height:1.5;">—</div>
+        <div id="pron-quechua" style="font-size:12px;color:#7C3AED;margin-top:4px;font-style:italic;">—</div>
+      </div>
+      <div class="info-card" style="background:#F0FDF4;border-color:#86EFAC;">
+        <h2 style="font-size:13px;color:#15803D;">🟢 En Aymara <span style="font-weight:400;font-size:11px;">(Yatiwi)</span></h2>
+        <div id="texto-aymara" style="font-size:18px;font-weight:600;color:#14532D;margin-top:8px;line-height:1.5;">—</div>
+        <div id="pron-aymara" style="font-size:12px;color:#16A34A;margin-top:4px;font-style:italic;">—</div>
+      </div>
+      <div class="info-card">
+        <h2 style="font-size:13px;">📚 Contexto cultural</h2>
+        <div id="contexto-cultural" style="font-size:13px;color:#374151;line-height:1.6;margin-top:6px;">—</div>
+      </div>
+    </div>
+    <div id="traduciendo" style="display:none;text-align:center;padding:20px;">
+      <div style="font-size:24px;margin-bottom:8px;">🔄</div>
+      <div style="font-size:13px;color:#6B7280;">Traduciendo...</div>
+    </div>
+  </div>
+</div>
+
+<!-- INFO CULTURA -->
+<div class="screen" id="screen-info">
+  <div class="screen-scroll">
+    <div class="info-card">
+      <h2>🎭 Danzas y Festividades</h2>
+      <p>Puno es la Capital Folclórica del Perú, con más de 300 danzas declaradas Patrimonio Cultural.</p>
+      <div style="margin-top:10px">
+        <span class="badge" onclick="preguntarBadge(this)" style="cursor:pointer">Morenada</span>
+        <span class="badge" onclick="preguntarBadge(this)" style="cursor:pointer">Diablada</span>
+        <span class="badge" onclick="preguntarBadge(this)" style="cursor:pointer">Caporales</span>
+        <span class="badge" onclick="preguntarBadge(this)" style="cursor:pointer">Llamerada</span>
+        <span class="badge" onclick="preguntarBadge(this)" style="cursor:pointer">Candelaria</span>
+      </div>
+    </div>
+    <div class="info-card">
+      <h2>🍽️ Gastronomía</h2>
+      <ul>
+        <li><strong>Trucha del Titicaca</strong> — el plato más representativo</li>
+        <li><strong>Chairo</strong> — sopa andina con chuño y carne</li>
+        <li><strong>Caldo de cabeza</strong> — tradicional de las ferias</li>
+        <li><strong>Quinua</strong> — grano sagrado de los Andes</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h2>🗣️ Idiomas del Altiplano</h2>
+      <p>En Puno conviven el español, el <strong>quechua</strong> (Yachay = sabiduría) y el <strong>aymara</strong> (Yatiwi = conocimiento). Ambas lenguas son reconocidas oficialmente por el Estado peruano.</p>
+    </div>
+    <div class="info-card">
+      <h2>📅 Calendario Cultural</h2>
+      <ul>
+        <li><strong>Feb:</strong> Festividad de la Virgen de la Candelaria</li>
+        <li><strong>May:</strong> Cruz Velacuy</li>
+        <li><strong>Jun:</strong> Inti Raymi en el altiplano</li>
+        <li><strong>Nov:</strong> Aniversario de Puno y emergencia del Manco Cápac</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- RECETAS -->
+<div class="screen" id="screen-recetas">
+  <div class="screen-scroll">
+    <div class="info-card" style="background:linear-gradient(135deg,#7C2D12,#C2410C);border:none;">
+      <h2 style="color:#fff;font-size:17px;">🍽️ Gastronomía Puneña</h2>
+      <p style="color:#FED7AA;font-size:13px;margin-top:4px;">Descubre las recetas ancestrales del altiplano. La IA te explica ingredientes, preparación y el origen cultural de cada plato.</p>
+    </div>
+
+    <!-- Platos sugeridos -->
+    <div class="info-card">
+      <h2 style="font-size:13px;">🥘 Elige un plato típico</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+        <div onclick="generarReceta('Trucha frita del Titicaca')" style="background:#FEF3C7;border-radius:10px;padding:10px;text-align:center;cursor:pointer;border:1px solid #FDE68A;">
+          <div style="font-size:24px;">🐟</div>
+          <div style="font-size:12px;font-weight:600;color:#92400E;margin-top:4px;">Trucha del Titicaca</div>
+        </div>
+        <div onclick="generarReceta('Chairo puneño')" style="background:#DCFCE7;border-radius:10px;padding:10px;text-align:center;cursor:pointer;border:1px solid #86EFAC;">
+          <div style="font-size:24px;">🍲</div>
+          <div style="font-size:12px;font-weight:600;color:#14532D;margin-top:4px;">Chairo Puneño</div>
+        </div>
+        <div onclick="generarReceta('Caldo de cabeza de cordero')" style="background:#FEE2E2;border-radius:10px;padding:10px;text-align:center;cursor:pointer;border:1px solid #FCA5A5;">
+          <div style="font-size:24px;">🍜</div>
+          <div style="font-size:12px;font-weight:600;color:#7F1D1D;margin-top:4px;">Caldo de Cabeza</div>
+        </div>
+        <div onclick="generarReceta('Sopa de quinua andina')" style="background:#F3E8FF;border-radius:10px;padding:10px;text-align:center;cursor:pointer;border:1px solid #D8B4FE;">
+          <div style="font-size:24px;">🌾</div>
+          <div style="font-size:12px;font-weight:600;color:#4C1D95;margin-top:4px;">Sopa de Quinua</div>
+        </div>
+        <div onclick="generarReceta('Chuño phuti')" style="background:#FEF9C3;border-radius:10px;padding:10px;text-align:center;cursor:pointer;border:1px solid #FDE047;">
+          <div style="font-size:24px;">🥔</div>
+          <div style="font-size:12px;font-weight:600;color:#713F12;margin-top:4px;">Chuño Phuti</div>
+        </div>
+        <div onclick="generarReceta('Timpo puneño con carne de alpaca')" style="background:#E0F2FE;border-radius:10px;padding:10px;text-align:center;cursor:pointer;border:1px solid #7DD3FC;">
+          <div style="font-size:24px;">🦙</div>
+          <div style="font-size:12px;font-weight:600;color:#0C4A6E;margin-top:4px;">Timpo de Alpaca</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input personalizado -->
+    <div class="info-card">
+      <h2 style="font-size:13px;">✍️ O escribe tu propio plato</h2>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <input id="platoInput" type="text" placeholder="Ej: Lawa de maíz, Api morado..." style="flex:1;padding:9px 12px;border:1px solid #DDD6FE;border-radius:8px;font-size:13px;outline:none;background:#FAF5FF;color:#1F2937;"/>
+        <button onclick="generarRecetaInput()" style="background:#C2410C;color:#fff;border:none;border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer;white-space:nowrap;">Buscar 🔍</button>
+      </div>
+    </div>
+
+    <!-- Cargando -->
+    <div id="receta-cargando" style="display:none;text-align:center;padding:24px;">
+      <div style="font-size:28px;margin-bottom:8px;">👨‍🍳</div>
+      <div style="font-size:13px;color:#6B7280;">Preparando la receta...</div>
+    </div>
+
+    <!-- Resultado receta -->
+    <div id="receta-resultado" style="display:none;">
+      <div class="info-card" style="background:linear-gradient(135deg,#FEF3C7,#FDE68A);border-color:#F59E0B;">
+        <h2 id="receta-titulo" style="font-size:16px;color:#92400E;">—</h2>
+        <div id="receta-origen" style="font-size:12px;color:#B45309;margin-top:4px;font-style:italic;">—</div>
+      </div>
+      <div class="info-card">
+        <h2 style="font-size:13px;">🛒 Ingredientes</h2>
+        <div id="receta-ingredientes" style="font-size:13px;color:#374151;line-height:1.8;margin-top:8px;">—</div>
+      </div>
+      <div class="info-card">
+        <h2 style="font-size:13px;">👨‍🍳 Preparación</h2>
+        <div id="receta-pasos" style="font-size:13px;color:#374151;line-height:1.8;margin-top:8px;">—</div>
+      </div>
+      <div class="info-card" style="background:#FEF9C3;border-color:#FDE047;">
+        <h2 style="font-size:13px;">🌿 Sabías que...</h2>
+        <div id="receta-dato" style="font-size:13px;color:#713F12;line-height:1.6;margin-top:6px;">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DANZAS -->
+<div class="screen" id="screen-danzas">
+  <div class="screen-scroll">
+    <div class="info-card" style="background:linear-gradient(135deg,#831843,#BE185D);border:none;">
+      <h2 style="color:#fff;font-size:17px;">💃 Galería de Danzas Puneñas</h2>
+      <p style="color:#FBCFE8;font-size:13px;margin-top:4px;">Puno es la Capital Folclórica del Perú con más de 300 danzas. Explora las más representativas y pregúntale a la IA sobre cada una.</p>
+    </div>
+
+    <!-- Filtros -->
+    <div style="display:flex;gap:8px;padding:4px 0;overflow-x:auto;">
+      <button class="filtro-btn active" onclick="filtrarDanzas('todas',this)">Todas</button>
+      <button class="filtro-btn" onclick="filtrarDanzas('religiosa',this)">Religiosas</button>
+      <button class="filtro-btn" onclick="filtrarDanzas('guerrera',this)">Guerreras</button>
+      <button class="filtro-btn" onclick="filtrarDanzas('satirica',this)">Satíricas</button>
+      <button class="filtro-btn" onclick="filtrarDanzas('agricola',this)">Agrícolas</button>
+    </div>
+
+    <!-- Galería -->
+    <div id="galeria-danzas" style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="screen-quiz">
+  <div class="screen-scroll">
+
+    <!-- Portada -->
+    <div id="quiz-portada">
+      <div class="info-card" style="background:linear-gradient(135deg,#1E3A5F,#1D4ED8);border:none;text-align:center;padding:28px 18px;">
+        <div style="font-size:48px;margin-bottom:12px;">🧠</div>
+        <h2 style="color:#fff;font-size:20px;margin-bottom:8px;">Quiz Cultural de Puno</h2>
+        <p style="color:#BFDBFE;font-size:13px;line-height:1.6;">¿Cuánto sabes sobre la cultura, historia y tradiciones de la región Puno? ¡Pon a prueba tus conocimientos!</p>
+      </div>
+      <div class="info-card" style="text-align:center;">
+        <div style="display:flex;justify-content:center;gap:24px;margin-bottom:16px;">
+          <div style="text-align:center;"><div style="font-size:24px;">📝</div><div style="font-size:12px;color:#6B7280;margin-top:4px;">10 preguntas</div></div>
+          <div style="text-align:center;"><div style="font-size:24px;">⏱️</div><div style="font-size:12px;color:#6B7280;margin-top:4px;">Sin límite</div></div>
+          <div style="text-align:center;"><div style="font-size:24px;">🏆</div><div style="font-size:12px;color:#6B7280;margin-top:4px;">3 niveles</div></div>
+        </div>
+        <button onclick="iniciarQuiz()" style="background:#1D4ED8;color:#fff;border:none;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;width:100%;">¡Empezar Quiz! 🚀</button>
+      </div>
+      <div class="info-card">
+        <h2 style="font-size:13px;">🏅 Niveles</h2>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+          <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🥉</span><div><div style="font-size:13px;font-weight:600;">Visitante (0-4 pts)</div><div style="font-size:12px;color:#6B7280;">Estás conociendo Puno</div></div></div>
+          <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🥈</span><div><div style="font-size:13px;font-weight:600;">Conocedor (5-7 pts)</div><div style="font-size:12px;color:#6B7280;">Sabes bien sobre Puno</div></div></div>
+          <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🥇</span><div><div style="font-size:13px;font-weight:600;">Yatiwi (8-10 pts)</div><div style="font-size:12px;color:#6B7280;">Eres un sabio del altiplano</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pregunta activa -->
+    <div id="quiz-pregunta" style="display:none;">
+      <div style="padding:4px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span id="quiz-num" style="font-size:13px;color:#6B7280;font-weight:600;">Pregunta 1 de 10</span>
+          <span id="quiz-puntaje-live" style="font-size:13px;font-weight:700;color:#1D4ED8;">⭐ 0 pts</span>
+        </div>
+        <div style="height:6px;background:#E5E7EB;border-radius:99px;overflow:hidden;">
+          <div id="quiz-barra" style="height:100%;background:#1D4ED8;border-radius:99px;transition:width 0.3s;width:10%"></div>
+        </div>
+      </div>
+      <div class="info-card" style="margin-top:8px;">
+        <div id="quiz-categoria" style="font-size:11px;font-weight:600;color:#1D4ED8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;"></div>
+        <div id="quiz-q" style="font-size:16px;font-weight:600;color:#1F2937;line-height:1.5;"></div>
+      </div>
+      <div id="quiz-opciones" style="display:flex;flex-direction:column;gap:8px;margin-top:4px;"></div>
+      <div id="quiz-feedback" style="display:none;" class="info-card">
+        <div id="quiz-feedback-texto" style="font-size:14px;line-height:1.6;"></div>
+        <button id="quiz-siguiente-btn" onclick="siguientePregunta()" style="width:100%;margin-top:12px;background:#1D4ED8;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- Resultado final -->
+    <div id="quiz-resultado" style="display:none;">
+      <div id="quiz-resultado-card" class="info-card" style="text-align:center;padding:28px 18px;"></div>
+      <div class="info-card">
+        <button onclick="reiniciarQuiz()" style="width:100%;background:#1D4ED8;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">🔄 Jugar de nuevo</button>
+        <button onclick="showTab('chat',document.querySelectorAll('nav button')[0])" style="width:100%;margin-top:8px;background:#6B21A8;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">🤖 Aprender más con YATIWI.AI</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CALENDARIO -->
+<div class="screen" id="screen-calendario">
+  <div class="screen-scroll">
+    <div class="info-card" style="background:linear-gradient(135deg,#064E3B,#059669);border:none;">
+      <h2 style="color:#fff;font-size:17px;">📅 Calendario de Festividades</h2>
+      <p style="color:#A7F3D0;font-size:13px;margin-top:4px;">Puno celebra más de 300 festividades al año. Descubre las más importantes mes a mes y planifica tu visita.</p>
+    </div>
+
+    <!-- Mes actual destacado -->
+    <div id="mes-actual-card" class="info-card" style="background:#F0FDF4;border-color:#86EFAC;"></div>
+
+    <!-- Lista de meses -->
+    <div id="lista-meses" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
+</div>
+
+<!-- HISTORIA -->
+<div class="screen" id="screen-historia">
+  <div class="screen-scroll">
+    <div class="info-card" style="background:linear-gradient(135deg,#1C1917,#44403C);border:none;">
+      <h2 style="color:#FDE68A;font-size:17px;">🏛️ Historia de Puno</h2>
+      <p style="color:#D6D3D1;font-size:13px;margin-top:4px;">Desde las civilizaciones preincaicas hasta hoy. Un viaje de miles de años por el altiplano más alto del mundo.</p>
+    </div>
+
+    <!-- Épocas -->
+    <div style="display:flex;gap:6px;overflow-x:auto;padding:4px 0;">
+      <button class="epoca-btn active" onclick="filtrarEpoca('todas',this)">Todas</button>
+      <button class="epoca-btn" onclick="filtrarEpoca('preinca',this)">Preinca</button>
+      <button class="epoca-btn" onclick="filtrarEpoca('inca',this)">Imperio Inca</button>
+      <button class="epoca-btn" onclick="filtrarEpoca('colonial',this)">Colonial</button>
+      <button class="epoca-btn" onclick="filtrarEpoca('republica',this)">República</button>
+    </div>
+
+    <!-- Línea de tiempo -->
+    <div id="linea-tiempo" style="position:relative;padding-left:24px;margin-top:8px;">
+      <div style="position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#92400E,#D97706,#6B21A8,#1D4ED8);border-radius:99px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ACERCA -->
+<div class="screen" id="screen-acerca">
+  <div class="screen-scroll">
+    <div class="info-card" style="text-align:center; padding: 28px 18px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:#6B21A8;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;color:#fff;margin:0 auto 14px;">Y</div>
+      <h2 style="font-size:20px;margin-bottom:6px;">YATIWI.AI</h2>
+      <p style="color:#6B7280;font-size:13px;">Versión 1.0 · Hackathon 2026</p>
+    </div>
+    <div class="info-card">
+      <h2>🎯 Misión</h2>
+      <p>Preservar y difundir el patrimonio cultural de Puno mediante Inteligencia Artificial, conectando la sabiduría ancestral con las nuevas generaciones.</p>
+    </div>
+    <div class="info-card">
+      <h2>⚙️ Tecnología</h2>
+      <ul>
+        <li><strong>IA:</strong> Claude (Anthropic) via API</li>
+        <li><strong>Frontend:</strong> HTML5 + PWA</li>
+        <li><strong>Hosting:</strong> GitHub Pages</li>
+        <li><strong>Instalable:</strong> Progressive Web App</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h2>👥 Equipo</h2>
+      <p>Proyecto presentado en la <strong>Yachay-Yatiwi Hackathon 2026: Sabiduría e IA para Puno</strong>, organizada por la UGEL Puno.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const SYSTEM = `Eres YATIWI.AI, un asistente de inteligencia artificial especializado exclusivamente en el patrimonio cultural, histórico y turístico de la región Puno, Perú.
+
+Tu nombre "Yatiwi" significa conocimiento y sabiduría en Aymara. Combinas tecnología moderna con el saber ancestral del altiplano peruano.
+
+REGLAS:
+- Solo respondes preguntas relacionadas con Puno: historia, cultura, danzas, festividades, sitios turísticos, gastronomía, idiomas (quechua/aymara), personajes históricos, flora y fauna del altiplano, artesanías, costumbres.
+- Si preguntan algo fuera de este tema, responde amablemente que solo puedes hablar de la cultura de Puno.
+- Respuestas claras, educativas y accesibles para estudiantes y turistas.
+- Máximo 3 párrafos cortos por respuesta.
+- Usa palabras en quechua o aymara con su traducción entre paréntesis cuando sea relevante.
+- Muestra siempre orgullo y respeto por la cultura puneña.`;
+
+const messagesEl = document.getElementById('messages');
+const input = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+let history = [];
+
+function getTime() {
+  return new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+}
+
+function addMessage(text, role) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = getTime();
+  div.appendChild(bubble);
+  div.appendChild(time);
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing';
+  div.innerHTML = '<div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typing');
+  if(t) t.remove();
+}
+
+function sendChip(el) { input.value = el.textContent; sendMessage(); }
+
+function preguntarSitio(nombre) {
+  showTab('chat', document.querySelector('nav button'));
+  input.value = `Cuéntame sobre ${nombre}`;
+  sendMessage();
+}
+
+function preguntarBadge(el) {
+  showTab('chat', document.querySelector('nav button'));
+  input.value = `¿Qué es la danza ${el.textContent}?`;
+  sendMessage();
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  else document.querySelector('nav button').classList.add('active');
+}
+
+async function sendMessage() {
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  sendBtn.disabled = true;
+  addMessage(text, 'user');
+  history.push({role:'user', content: text});
+  showTyping();
+  try {
+    const GROQ_KEY = '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';
+    const groqMessages = [{role: 'system', content: SYSTEM}, ...history.map(m => ({role: m.role, content: m.content}))];
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + GROQ_KEY
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: groqMessages,
+        max_tokens: 1024,
+        temperature: 0.7
+      })
+    });
+    const data = await res.json();
+    hideTyping();
+    const reply = data.choices?.[0]?.message?.content || 'Lo siento, intenta de nuevo.';
+    history.push({role:'assistant', content: reply});
+    addMessage(reply, 'bot');
+  } catch(e) {
+    hideTyping();
+    addMessage('Sin conexión. Verifica tu internet e intenta de nuevo.', 'bot');
+  }
+  sendBtn.disabled = false;
+  input.focus();
+}
+
+input.addEventListener('keydown', e => { if(e.key==='Enter') sendMessage(); });
+
+// DATOS DE SITIOS
+const sitios = [
+  { nombre:'Lago Titicaca', emoji:'🌊', desc:'El lago navegable más alto del mundo a 3,812 m.s.n.m., compartido entre Perú y Bolivia. Cuna de la civilización andina y hogar de especies únicas.' },
+  { nombre:'Islas Uros', emoji:'🛶', desc:'Islas flotantes construidas con totora por el pueblo Uro. Una de las maravillas culturales más singulares del planeta, habitadas desde hace siglos.' },
+  { nombre:'Isla Taquile', emoji:'🧵', desc:'Famosa por su arte textil declarado Patrimonio Inmaterial de la UNESCO. Sus habitantes mantienen tradiciones milenarias de tejido y organización comunitaria.' },
+  { nombre:'Isla Amantaní', emoji:'🏝️', desc:'Isla ideal para el turismo vivencial andino. Los visitantes conviven con familias locales y participan en rituales en los templos de Pachatata y Pachamama.' },
+  { nombre:'Sillustani', emoji:'🗿', desc:'Complejo funerario preincaico con torres llamadas chullpas. Construidas por la cultura Colla entre los siglos XII y XV, con vistas panorámicas al lago Umayo.' },
+  { nombre:'Catedral de Puno', emoji:'⛪', desc:'Joya del barroco andino construida en el siglo XVIII. Destaca por su fachada tallada en piedra con motivos indígenas y europeos fusionados.' },
+  { nombre:'Isla Anapia', emoji:'🌿', desc:'La isla más alejada del lago peruano, en el lago Wiñaymarca. Ofrece turismo comunitario, viñedos y una naturaleza casi virgen con vistas espectaculares.' }
+];
+
+let sitioActual = 0;
+
+function seleccionarSitio(idx) {
+  sitioActual = idx;
+  const s = sitios[idx];
+  document.getElementById('sitio-emoji').textContent = s.emoji;
+  document.getElementById('sitio-nombre').textContent = s.nombre;
+  document.getElementById('sitio-desc').textContent = s.desc;
+  // Scroll to card
+  document.getElementById('sitio-card').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function preguntarSitioIA() {
+  const nombre = sitios[sitioActual].nombre;
+  showTab('chat', document.querySelector('nav button'));
+  input.value = 'Cuéntame más sobre ' + nombre + ' en Puno';
+  sendMessage();
+}
+
+// HISTORIA
+const historiaData = [
+  { año:'~3000 a.C.', epoca:'preinca', color:'#92400E', bg:'#FEF3C7', tag:'Preinca', tagBg:'#FEF3C7', tagColor:'#92400E',
+    titulo:'Primeros habitantes del altiplano',
+    desc:'Las primeras civilizaciones se asientan alrededor del Lago Titicaca, desarrollando la agricultura de la papa, quinua y cañihua, y la crianza de llamas y alpacas.' },
+  { año:'~1500 a.C.', epoca:'preinca', color:'#92400E', bg:'#FEF3C7', tag:'Preinca', tagBg:'#FEF3C7', tagColor:'#92400E',
+    titulo:'Cultura Pucará',
+    desc:'Florece la cultura Pucará al norte del Titicaca, conocida por su cerámica policroma y esculturas de piedra. Fueron los primeros en construir centros ceremoniales en el altiplano.' },
+  { año:'200-1000 d.C.', epoca:'preinca', color:'#92400E', bg:'#FEF3C7', tag:'Preinca', tagBg:'#FEF3C7', tagColor:'#92400E',
+    titulo:'Imperio Tiahuanaco',
+    desc:'La gran civilización Tiahuanaco domina el altiplano desde Bolivia. Su influencia cultural, arquitectónica y religiosa se extiende por toda la región del Titicaca.' },
+  { año:'1200-1400', epoca:'preinca', color:'#92400E', bg:'#FEF3C7', tag:'Preinca', tagBg:'#FEF3C7', tagColor:'#92400E',
+    titulo:'Reinos Collas y Lupacas',
+    desc:'Surgen los poderosos reinos aimaras: los Collas al norte y los Lupacas al sur del Titicaca. Construyen las chullpas de Sillustani como tumbas para sus nobles.' },
+  { año:'~1200 d.C.', epoca:'inca', color:'#D97706', bg:'#FEF9C3', tag:'Imperio Inca', tagBg:'#FEF9C3', tagColor:'#D97706',
+    titulo:'Leyenda de Manco Cápac',
+    desc:'Según la tradición oral inca, Manco Cápac y Mama Ocllo emergieron del Lago Titicaca enviados por el dios Sol (Inti) para fundar el Imperio Inca y civilizar al mundo.' },
+  { año:'1438-1471', epoca:'inca', color:'#D97706', bg:'#FEF9C3', tag:'Imperio Inca', tagBg:'#FEF9C3', tagColor:'#D97706',
+    titulo:'Conquista Inca del altiplano',
+    desc:'El Sapa Inca Pachacútec conquista los reinos Colla y Lupaca. El Lago Titicaca se convierte en el lugar sagrado más importante del Imperio, considerado el origen de la humanidad.' },
+  { año:'1471-1527', epoca:'inca', color:'#D97706', bg:'#FEF9C3', tag:'Imperio Inca', tagBg:'#FEF9C3', tagColor:'#D97706',
+    titulo:'Apogeo del Tahuantinsuyo',
+    desc:'Durante el reinado de Túpac Yupanqui y Huayna Cápac, el altiplano puneño alcanza su máximo esplendor. Se construyen templos al Sol y se desarrolla el sistema de caminos del Qhapaq Ñan.' },
+  { año:'1532', epoca:'colonial', color:'#6B21A8', bg:'#F3E8FF', tag:'Colonial', tagBg:'#F3E8FF', tagColor:'#6B21A8',
+    titulo:'Llegada de los españoles',
+    desc:'Francisco Pizarro llega al Perú. El Imperio Inca cae. Las poblaciones del altiplano son sometidas al sistema colonial español, con la mita minera como principal forma de explotación.' },
+  { año:'1668', epoca:'colonial', color:'#6B21A8', bg:'#F3E8FF', tag:'Colonial', tagBg:'#F3E8FF', tagColor:'#6B21A8',
+    titulo:'Fundación española de Puno ⭐',
+    desc:'El Conde de Lemos funda oficialmente la ciudad de Puno el 4 de noviembre de 1668. Se establece como centro administrativo de la región minera del altiplano.' },
+  { año:'1780-1781', epoca:'colonial', color:'#6B21A8', bg:'#F3E8FF', tag:'Colonial', tagBg:'#F3E8FF', tagColor:'#6B21A8',
+    titulo:'Rebelión de Túpac Amaru II',
+    desc:'José Gabriel Condorcanqui, Túpac Amaru II, lidera la mayor rebelión indígena colonial. El altiplano puneño es escenario de importantes batallas por la liberación del pueblo andino.' },
+  { año:'1821', epoca:'republica', color:'#1D4ED8', bg:'#EFF6FF', tag:'República', tagBg:'#EFF6FF', tagColor:'#1D4ED8',
+    titulo:'Independencia del Perú',
+    desc:'El Perú declara su independencia. Puno se integra a la nueva república como departamento. Las comunidades indígenas mantienen sus tradiciones culturales a pesar de los cambios políticos.' },
+  { año:'1926', epoca:'republica', color:'#1D4ED8', bg:'#EFF6FF', tag:'República', tagBg:'#EFF6FF', tagColor:'#1D4ED8',
+    titulo:'Puno, Capital Folclórica del Perú',
+    desc:'Puno es reconocida oficialmente como la Capital Folclórica del Perú por su riqueza en danzas, música y tradiciones. Más de 300 expresiones culturales son catalogadas.' },
+  { año:'2014', epoca:'republica', color:'#1D4ED8', bg:'#EFF6FF', tag:'República', tagBg:'#EFF6FF', tagColor:'#1D4ED8',
+    titulo:'Candelaria: Patrimonio UNESCO ⭐',
+    desc:'La Festividad de la Virgen de la Candelaria de Puno es inscrita en la Lista del Patrimonio Cultural Inmaterial de la UNESCO, siendo reconocida mundialmente.' },
+  { año:'2026', epoca:'republica', color:'#059669', bg:'#DCFCE7', tag:'Presente', tagBg:'#DCFCE7', tagColor:'#059669',
+    titulo:'YATIWI.AI — IA para preservar la cultura',
+    desc:'Estudiantes de Puno crean YATIWI.AI, una plataforma de Inteligencia Artificial para preservar y difundir el patrimonio cultural del altiplano a las nuevas generaciones.' },
+];
+
+function renderHistoria(filtro) {
+  const linea = document.getElementById('linea-tiempo');
+  const datos = filtro === 'todas' ? historiaData : historiaData.filter(e => e.epoca === filtro);
+  linea.innerHTML = '<div style="position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#92400E,#D97706,#6B21A8,#1D4ED8,#059669);border-radius:99px;"></div>' +
+    datos.map(e => `
+    <div class="evento-card">
+      <div class="evento-punto" style="background:${e.color};color:${e.color};box-shadow:0 0 0 2px ${e.color};"></div>
+      <div class="evento-inner" style="border-color:${e.color}30;">
+        <div class="evento-año" style="color:${e.color};">${e.año}</div>
+        <div class="evento-titulo">${e.titulo}</div>
+        <div class="evento-desc">${e.desc}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <span class="evento-tag" style="background:${e.tagBg};color:${e.tagColor};">${e.tag}</span>
+          <button onclick="preguntarHistoria('${e.titulo.replace(/⭐/g,'').trim()}')" style="font-size:11px;background:#44403C;color:#FDE68A;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;">🤖 Saber más</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filtrarEpoca(tipo, btn) {
+  document.querySelectorAll('.epoca-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistoria(tipo);
+}
+
+function preguntarHistoria(titulo) {
+  showTab('chat', document.querySelector('nav button'));
+  input.value = 'Cuéntame más sobre: ' + titulo + ' en la historia de Puno';
+  sendMessage();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderDanzas('todas');
+  renderCalendario();
+  renderHistoria('todas');
+});
+
+// CALENDARIO
+const festividades = [
+  { mes:'Enero', num:1, emoji:'🎉', color:'#FEF3C7', border:'#F59E0B', fiestas:[
+    { dia:'1', nombre:'Año Nuevo Andino', desc:'Celebración del inicio del año con rituales a la Pachamama', tipo:'Cultural' },
+    { dia:'6', nombre:'Bajada de Reyes', desc:'Festividad religiosa con danzas típicas en comunidades rurales', tipo:'Religiosa' },
+    { dia:'20', nombre:'Festividad de San Sebastián', desc:'Patrón de varios distritos de Puno, celebrado con danzas autóctonas', tipo:'Religiosa' },
+  ]},
+  { mes:'Febrero', num:2, emoji:'💃', color:'#FEE2E2', border:'#EF4444', fiestas:[
+    { dia:'2', nombre:'Virgen de la Candelaria ⭐', desc:'La festividad más importante de Puno. Patrimonio Inmaterial UNESCO. Más de 200 grupos de danza participan', tipo:'Patrimonio UNESCO' },
+    { dia:'3-18', nombre:'Carnavales Puneños', desc:'Celebración con pasos, ch\'allados y música típica altiplánica', tipo:'Cultural' },
+  ]},
+  { mes:'Marzo', num:3, emoji:'🌿', color:'#DCFCE7', border:'#22C55E', fiestas:[
+    { dia:'Variable', nombre:'Semana Santa', desc:'Procesiones religiosas con participación masiva en la ciudad de Puno', tipo:'Religiosa' },
+    { dia:'21', nombre:'Equinoccio de Otoño', desc:'Ritual andino de agradecimiento a la Pachamama por las cosechas', tipo:'Cultural' },
+  ]},
+  { mes:'Abril', num:4, emoji:'🌸', color:'#FDF4FF', border:'#A855F7', fiestas:[
+    { dia:'Variable', nombre:'Semana Santa (si aplica)', desc:'Viernes Santo con procesiones del Señor de los Milagros en Puno', tipo:'Religiosa' },
+    { dia:'23', nombre:'Día del Idioma', desc:'Celebración del quechua y aymara en instituciones educativas', tipo:'Cultural' },
+  ]},
+  { mes:'Mayo', num:5, emoji:'✝️', color:'#EFF6FF', border:'#3B82F6', fiestas:[
+    { dia:'3', nombre:'Cruz Velacuy', desc:'Festividad de las cruces. Las comunidades adornan y celebran sus cruces patronales', tipo:'Religiosa' },
+    { dia:'15', nombre:'San Isidro Labrador', desc:'Patrón de los agricultores. Se bendicen herramientas y semillas en el altiplano', tipo:'Religiosa' },
+  ]},
+  { mes:'Junio', num:6, emoji:'☀️', color:'#FEF9C3', border:'#EAB308', fiestas:[
+    { dia:'21', nombre:'Inti Raymi (Fiesta del Sol)', desc:'Celebración del solsticio de invierno. Ritual inca de adoración al Sol en el altiplano puneño', tipo:'Cultural' },
+    { dia:'24', nombre:'San Juan Bautista', desc:'Festividad patronal con baños rituales en ríos y lagunas andinas', tipo:'Religiosa' },
+    { dia:'29', nombre:'San Pedro y San Pablo', desc:'Patrón de pescadores. Procesiones en el Lago Titicaca con barcas adornadas', tipo:'Religiosa' },
+  ]},
+  { mes:'Julio', num:7, emoji:'🇵🇪', color:'#FEE2E2', border:'#EF4444', fiestas:[
+    { dia:'28-29', nombre:'Fiestas Patrias', desc:'Celebración de la Independencia con desfiles y festividades especiales en Puno', tipo:'Nacional' },
+    { dia:'16', nombre:'Virgen del Carmen', desc:'Festividad en Paucarcolla y otros distritos con danzas autóctonas', tipo:'Religiosa' },
+  ]},
+  { mes:'Agosto', num:8, emoji:'🌄', color:'#FEF3C7', border:'#F59E0B', fiestas:[
+    { dia:'1', nombre:'Día de la Pachamama', desc:'Ofrenda a la Madre Tierra. Las comunidades realizan pagos y rituales de agradecimiento', tipo:'Cultural' },
+    { dia:'15', nombre:'Virgen de la Asunción', desc:'Festividad patronal en varios distritos con ferias artesanales', tipo:'Religiosa' },
+    { dia:'30', nombre:'Santa Rosa de Lima', desc:'Celebración religiosa con procesiones en comunidades del altiplano', tipo:'Religiosa' },
+  ]},
+  { mes:'Septiembre', num:9, emoji:'🎭', color:'#F0FDF4', border:'#22C55E', fiestas:[
+    { dia:'8', nombre:'Virgen de la Natividad', desc:'Festividad patronal en Pomata y Juli con danzas y ferias tradicionales', tipo:'Religiosa' },
+    { dia:'14', nombre:'Exaltación de la Santa Cruz', desc:'Procesiones y danzas en comunidades rurales de la provincia de Puno', tipo:'Religiosa' },
+  ]},
+  { mes:'Octubre', num:10, emoji:'🕯️', color:'#FDF4FF', border:'#A855F7', fiestas:[
+    { dia:'4', nombre:'San Francisco de Asís', desc:'Festividad en distritos de la provincia de Puno con bendición de animales', tipo:'Religiosa' },
+    { dia:'18', nombre:'San Lucas Evangelista', desc:'Patrón de Acora, celebrado con danzas autóctonas y feria agropecuaria', tipo:'Religiosa' },
+  ]},
+  { mes:'Noviembre', num:11, emoji:'🏛️', color:'#EFF6FF', border:'#3B82F6', fiestas:[
+    { dia:'1-2', nombre:'Todos los Santos y Día de Difuntos', desc:'Las familias puneñas visitan los cementerios con ofrendas y música', tipo:'Cultural' },
+    { dia:'5', nombre:'Aniversario de Puno ⭐', desc:'Fundación española de Puno (1668). Gran festividad con danzas, parada y espectáculos culturales', tipo:'Cívica' },
+    { dia:'5', nombre:'Emergencia de Manco Cápac', desc:'Representación de la leyenda inca del nacimiento del Imperio desde el Lago Titicaca', tipo:'Cultural' },
+  ]},
+  { mes:'Diciembre', num:12, emoji:'🎄', color:'#DCFCE7', border:'#22C55E', fiestas:[
+    { dia:'8', nombre:'Inmaculada Concepción', desc:'Festividad mariana celebrada en Ilave y otras provincias con danzas aymaras', tipo:'Religiosa' },
+    { dia:'25', nombre:'Navidad Andina', desc:'Celebración con pastoriles, nacimientos vivientes y danzas en las comunidades', tipo:'Religiosa' },
+    { dia:'31', nombre:'Año Viejo / Nuevo', desc:'Quema de muñecos que representan lo malo del año y rituales de Año Nuevo andino', tipo:'Cultural' },
+  ]},
+];
+
+function renderCalendario() {
+  const mesActual = new Date().getMonth() + 1;
+  const mesData = festividades.find(m => m.num === mesActual);
+  
+  // Mes actual destacado
+  if (mesData) {
+    document.getElementById('mes-actual-card').innerHTML = `
+      <h2 style="font-size:14px;color:#059669;margin-bottom:10px;">📍 Este mes — ${mesData.mes} ${mesData.emoji}</h2>
+      ${mesData.fiestas.map(f => `
+        <div style="margin-bottom:8px;padding:8px 10px;background:#fff;border-radius:8px;border-left:3px solid #059669;">
+          <div style="font-size:13px;font-weight:600;color:#1F2937;">${f.dia} — ${f.nombre}</div>
+          <div style="font-size:12px;color:#6B7280;margin-top:2px;">${f.desc}</div>
+          <span style="font-size:10px;background:#DCFCE7;color:#15803D;padding:1px 7px;border-radius:99px;font-weight:600;">${f.tipo}</span>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  // Todos los meses
+  const lista = document.getElementById('lista-meses');
+  lista.innerHTML = festividades.map(m => `
+    <div style="background:#fff;border-radius:16px;border:1.5px solid ${m.border};overflow:hidden;">
+      <div onclick="toggleMes('mes-${m.num}')" style="padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:${m.color};">
+        <span style="font-size:24px;">${m.emoji}</span>
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:700;color:#1F2937;">${m.mes}</div>
+          <div style="font-size:12px;color:#6B7280;">${m.fiestas.length} festividad${m.fiestas.length>1?'es':''}</div>
+        </div>
+        <span style="color:#9CA3AF;font-size:18px;" id="arrow-${m.num}">›</span>
+      </div>
+      <div id="mes-${m.num}" style="display:none;padding:12px 16px;border-top:1px solid ${m.border};">
+        ${m.fiestas.map(f => `
+          <div style="margin-bottom:10px;padding:10px;background:#FAF5FF;border-radius:10px;">
+            <div style="font-size:13px;font-weight:700;color:#1F2937;">📆 ${f.dia} — ${f.nombre}</div>
+            <div style="font-size:12px;color:#6B7280;margin-top:4px;line-height:1.5;">${f.desc}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+              <span style="font-size:10px;background:#EDE9FE;color:#6B21A8;padding:2px 8px;border-radius:99px;font-weight:600;">${f.tipo}</span>
+              <button onclick="preguntarFiesta('${f.nombre.replace(/⭐/g,'').trim()}')" style="font-size:11px;background:#6B21A8;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;">🤖 Saber más</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleMes(id) {
+  const el = document.getElementById(id);
+  const num = id.replace('mes-','');
+  const arrow = document.getElementById('arrow-'+num);
+  const open = el.style.display === 'block';
+  el.style.display = open ? 'none' : 'block';
+  arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(90deg)';
+}
+
+function preguntarFiesta(nombre) {
+  showTab('chat', document.querySelector('nav button'));
+  input.value = '¿Cuéntame sobre la festividad ' + nombre + ' en Puno?';
+  sendMessage();
+}
+
+
+
+// QUIZ
+const quizPreguntas = [
+  { cat:'🌊 Geografía', q:'¿A qué altura se encuentra el Lago Titicaca?', ops:['2,800 m.s.n.m.','3,812 m.s.n.m.','4,500 m.s.n.m.','3,200 m.s.n.m.'], r:1, exp:'El Lago Titicaca se encuentra a 3,812 metros sobre el nivel del mar, siendo el lago navegable más alto del mundo.' },
+  { cat:'🎭 Folclore', q:'¿Con qué festividad se celebra la Virgen de la Candelaria en Puno?', ops:['Inti Raymi','Cruz Velacuy','Festividad de la Candelaria','Corpus Christi'], r:2, exp:'La Festividad de la Virgen de la Candelaria se celebra en febrero y fue declarada Patrimonio Inmaterial de la UNESCO en 2014.' },
+  { cat:'🗣️ Idiomas', q:'¿Qué significa "Yatiwi" en Aymara?', ops:['Lago grande','Conocimiento','Montaña sagrada','Fiesta'], r:1, exp:'Yatiwi significa "conocimiento" en Aymara, uno de los idiomas originarios del altiplano peruano-boliviano.' },
+  { cat:'🏛️ Historia', q:'¿Qué cultura construyó las chullpas de Sillustani?', ops:['Inca','Tiahuanaco','Colla','Wari'], r:2, exp:'Las chullpas de Sillustani fueron construidas por la cultura Colla entre los siglos XII y XV, antes de ser conquistados por los Incas.' },
+  { cat:'🦙 Naturaleza', q:'¿Cuál es la planta característica de las Islas Uros?', ops:['Quinua','Totora','Cañihua','Ichu'], r:1, exp:'La totora es la planta de junco con la que los Uros construyen sus islas flotantes, sus casas y sus embarcaciones tradicionales.' },
+  { cat:'🎭 Danzas', q:'¿Qué danza representa la lucha entre el bien y el mal?', ops:['Morenada','Caporales','Diablada','Llamerada'], r:2, exp:'La Diablada representa el combate entre ángeles y demonios. Es la danza más icónica de Puno y símbolo de la Candelaria.' },
+  { cat:'🌾 Gastronomía', q:'¿Cuál es el grano sagrado de los Andes cultivado en Puno?', ops:['Maíz','Quinua','Trigo','Cebada'], r:1, exp:'La quinua es el grano sagrado andino, cultivado desde hace miles de años en el altiplano puneño. Fue alimento base de los Incas.' },
+  { cat:'🌊 Geografía', q:'¿Con qué país comparte el Perú el Lago Titicaca?', ops:['Chile','Ecuador','Bolivia','Colombia'], r:2, exp:'El Lago Titicaca es compartido entre Perú y Bolivia. El 60% pertenece a Perú y el 40% a Bolivia.' },
+  { cat:'🏛️ Historia', q:'¿Cómo se llama la leyenda del origen del Imperio Inca en el Lago Titicaca?', ops:['Origen de Viracocha','Emergencia de Manco Cápac','Creación del Sol','Leyenda de los Uros'], r:1, exp:'Según la leyenda, Manco Cápac y Mama Ocllo emergieron del Lago Titicaca enviados por el Sol para fundar el Imperio Inca en el Cusco.' },
+  { cat:'🗣️ Idiomas', q:'¿Qué significa "Yachay" en Quechua?', ops:['Agua','Sabiduría','Tierra','Fiesta'], r:1, exp:'Yachay significa "sabiduría" o "saber" en Quechua. De ahí el nombre del hackathon Yachay-Yatiwi: Sabiduría y Conocimiento.' },
+];
+
+let quizIdx = 0;
+let quizPuntos = 0;
+let quizRespondida = false;
+let quizMezcladas = [];
+
+function iniciarQuiz() {
+  quizIdx = 0;
+  quizPuntos = 0;
+  quizMezcladas = [...quizPreguntas].sort(() => Math.random() - 0.5);
+  document.getElementById('quiz-portada').style.display = 'none';
+  document.getElementById('quiz-resultado').style.display = 'none';
+  document.getElementById('quiz-pregunta').style.display = 'block';
+  mostrarPregunta();
+}
+
+function mostrarPregunta() {
+  quizRespondida = false;
+  const p = quizMezcladas[quizIdx];
+  document.getElementById('quiz-num').textContent = `Pregunta ${quizIdx+1} de ${quizMezcladas.length}`;
+  document.getElementById('quiz-puntaje-live').textContent = `⭐ ${quizPuntos} pts`;
+  document.getElementById('quiz-barra').style.width = `${((quizIdx+1)/quizMezcladas.length)*100}%`;
+  document.getElementById('quiz-categoria').textContent = p.cat;
+  document.getElementById('quiz-q').textContent = p.q;
+  document.getElementById('quiz-feedback').style.display = 'none';
+  const ops = document.getElementById('quiz-opciones');
+  ops.innerHTML = p.ops.map((op,i) => `
+    <button onclick="responder(${i})" style="text-align:left;padding:12px 16px;border-radius:12px;border:1.5px solid #E5E7EB;background:#fff;font-size:14px;color:#1F2937;cursor:pointer;transition:all 0.15s;" id="op-${i}">
+      <span style="font-weight:700;color:#1D4ED8;margin-right:8px;">${['A','B','C','D'][i]}.</span>${op}
+    </button>
+  `).join('');
+}
+
+function responder(idx) {
+  if (quizRespondida) return;
+  quizRespondida = true;
+  const p = quizMezcladas[quizIdx];
+  const correcta = p.r === idx;
+  if (correcta) quizPuntos++;
+  // Colorear opciones
+  for (let i=0; i<p.ops.length; i++) {
+    const btn = document.getElementById('op-'+i);
+    if (i === p.r) btn.style.background = '#DCFCE7', btn.style.borderColor = '#16A34A', btn.style.color = '#14532D';
+    else if (i === idx && !correcta) btn.style.background = '#FEE2E2', btn.style.borderColor = '#EF4444', btn.style.color = '#7F1D1D';
+    btn.style.cursor = 'default';
+  }
+  // Feedback
+  const fb = document.getElementById('quiz-feedback');
+  const fbt = document.getElementById('quiz-feedback-texto');
+  fbt.innerHTML = `<strong>${correcta ? '✅ ¡Correcto!' : '❌ Incorrecto'}</strong><br><br>${p.exp}`;
+  fb.style.background = correcta ? '#F0FDF4' : '#FEF2F2';
+  fb.style.border = correcta ? '1px solid #86EFAC' : '1px solid #FCA5A5';
+  fb.style.display = 'block';
+  document.getElementById('quiz-puntaje-live').textContent = `⭐ ${quizPuntos} pts`;
+  const btnSig = document.getElementById('quiz-siguiente-btn');
+  btnSig.textContent = quizIdx === quizMezcladas.length-1 ? 'Ver resultados 🏆' : 'Siguiente →';
+}
+
+function siguientePregunta() {
+  quizIdx++;
+  if (quizIdx >= quizMezcladas.length) {
+    mostrarResultado();
+  } else {
+    mostrarPregunta();
+  }
+}
+
+function mostrarResultado() {
+  document.getElementById('quiz-pregunta').style.display = 'none';
+  document.getElementById('quiz-resultado').style.display = 'block';
+  const total = quizMezcladas.length;
+  let nivel, emoji, color, msg;
+  if (quizPuntos >= 8) { nivel='🥇 Yatiwi'; emoji='🏆'; color='#FEF9C3'; msg='¡Eres un verdadero sabio del altiplano! Tu conocimiento sobre Puno es excepcional.'; }
+  else if (quizPuntos >= 5) { nivel='🥈 Conocedor'; emoji='⭐'; color='#F0F9FF'; msg='¡Muy bien! Conoces bastante sobre la cultura puneña. Sigue aprendiendo con YATIWI.AI.'; }
+  else { nivel='🥉 Visitante'; emoji='📚'; color='#F5F3FF'; msg='¡Buen intento! Usa el chatbot de YATIWI.AI para aprender más sobre la rica cultura de Puno.'; }
+  document.getElementById('quiz-resultado-card').innerHTML = `
+    <div style="font-size:56px;margin-bottom:12px;">${emoji}</div>
+    <div style="font-size:22px;font-weight:700;color:#1F2937;margin-bottom:4px;">${nivel}</div>
+    <div style="font-size:32px;font-weight:700;color:#1D4ED8;margin:12px 0;">${quizPuntos}/${total}</div>
+    <div style="font-size:13px;color:#6B7280;line-height:1.6;">${msg}</div>
+  `;
+  document.getElementById('quiz-resultado-card').style.background = color;
+}
+
+function reiniciarQuiz() {
+  document.getElementById('quiz-resultado').style.display = 'none';
+  iniciarQuiz();
+}
+
+// DANZAS
+const danzasData = [
+  { nombre:'Diablada', tipo:'religiosa', emoji:'😈', color:'#FEE2E2', colorTipo:'#EF4444', textoTipo:'#fff', desc:'La danza más icónica del Perú', detalle:'La Diablada representa la lucha entre el bien y el mal. Los danzarines visten elaborados trajes de diablos y ángeles. Es el emblema de la Festividad de la Virgen de la Candelaria, declarada Patrimonio Inmaterial de la UNESCO en 2014.' },
+  { nombre:'Morenada', tipo:'satirica', emoji:'🎭', color:'#EDE9FE', colorTipo:'#7C3AED', textoTipo:'#fff', desc:'Sátira a los esclavos africanos coloniales', detalle:'La Morenada nació como una crítica social a los esclavos negros que trabajaban en las minas durante la colonia. Sus trajes son los más pesados y lujosos del folclore andino, con mascaras expresivas y movimientos lentos y majestuosos.' },
+  { nombre:'Caporales', tipo:'satirica', emoji:'🤠', color:'#DCFCE7', colorTipo:'#16A34A', textoTipo:'#fff', desc:'Danza de los capataces coloniales', detalle:'El Caporal representa al capataz que supervisaba a los esclavos. Es una danza enérgica y acrobática, con cascabeles en las botas y movimientos ágiles. Surgió en el altiplano peruano-boliviano en los años 60.' },
+  { nombre:'Llamerada', tipo:'agricola', emoji:'🦙', color:'#FEF3C7', colorTipo:'#D97706', textoTipo:'#fff', desc:'Homenaje a los pastores de llamas', detalle:'La Llamerada honra a los pastores de llamas y alpacas del altiplano. Los danzarines imitan el caminar tranquilo de estos animales sagrados y llevan figuras de llamas. Es una de las danzas más antiguas de la región puneña.' },
+  { nombre:'Tinku', tipo:'guerrera', emoji:'⚔️', color:'#FEE2E2', colorTipo:'#DC2626', textoTipo:'#fff', desc:'Ritual de combate andino', detalle:'El Tinku es un ritual de encuentro y combate entre comunidades aymaras. Originalmente era un enfrentamiento real para pedir lluvias a la Pachamama. Hoy es una danza que conserva los movimientos de lucha con vestuario colorido.' },
+  { nombre:'Wifala', tipo:'agricola', emoji:'🌽', color:'#F0FDF4', colorTipo:'#15803D', textoTipo:'#fff', desc:'Celebración de la cosecha andina', detalle:'La Wifala es una danza de celebración por las cosechas del altiplano. Se baila en círculos con cintas de colores que representan la alegría y el agradecimiento a la Pachamama por los frutos recibidos.' },
+  { nombre:'Suri Sicuri', tipo:'religiosa', emoji:'🪶', color:'#E0F2FE', colorTipo:'#0284C7', textoTipo:'#fff', desc:'Danza del avestruz andino', detalle:'El Suri Sicuri imita al ñandú o suri, el avestruz andino. Los danzarines se adornan con plumas de este ave en sus sombreros y trajes. Es originaria del altiplano boliviano-peruano y tiene profundo significado espiritual.' },
+  { nombre:'Kullawada', tipo:'religiosa', emoji:'🧵', color:'#FDF4FF', colorTipo:'#9333EA', textoTipo:'#fff', desc:'Danza de los tejedores andinos', detalle:'La Kullawada representa a los artesanos tejedores del altiplano. Los danzarines llevan ruecas y demuestran la habilidad textil que caracteriza a las comunidades quechuas y aymaras de Puno.' },
+];
+
+let danzaActiva = null;
+
+function renderDanzas(filtro) {
+  const galeria = document.getElementById('galeria-danzas');
+  const filtradas = filtro === 'todas' ? danzasData : danzasData.filter(d => d.tipo === filtro);
+  galeria.innerHTML = filtradas.map((d, i) => `
+    <div class="danza-card" id="danza-${i}">
+      <div class="danza-header" onclick="toggleDanza(${i})">
+        <div class="danza-emoji" style="background:${d.color}">${d.emoji}</div>
+        <div class="danza-info">
+          <div class="danza-nombre">${d.nombre}</div>
+          <span class="danza-tipo" style="background:${d.colorTipo};color:${d.textoTipo}">${d.tipo}</span>
+          <div class="danza-desc">${d.desc}</div>
+        </div>
+        <div style="color:#9CA3AF;font-size:18px;">›</div>
+      </div>
+      <div class="danza-body" id="body-${i}">
+        <div class="danza-detalle">${d.detalle}</div>
+        <button onclick="preguntarDanza('${d.nombre}')" style="margin-top:10px;background:#6B21A8;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;width:100%;">🤖 Saber más con YATIWI.AI</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleDanza(i) {
+  const body = document.getElementById('body-' + i);
+  body.classList.toggle('open');
+}
+
+function filtrarDanzas(tipo, btn) {
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDanzas(tipo);
+}
+
+function preguntarDanza(nombre) {
+  showTab('chat', document.querySelector('nav button'));
+  input.value = '¿Cuéntame más sobre la danza ' + nombre + ' de Puno?';
+  sendMessage();
+}
+
+// Inicializar danzas cuando se carga
+document.addEventListener('DOMContentLoaded', () => renderDanzas('todas'));
+
+// RECETAS
+function generarRecetaInput() {
+  const plato = document.getElementById('platoInput').value.trim();
+  if (plato) generarReceta(plato);
+}
+
+async function generarReceta(plato) {
+  document.getElementById('receta-resultado').style.display = 'none';
+  document.getElementById('receta-cargando').style.display = 'block';
+
+  const prompt = `Eres un experto en gastronomía tradicional puneña y andina del Perú.
+Dame la receta completa y auténtica de: "${plato}"
+
+Responde SOLO en este formato JSON exacto, sin texto adicional:
+{
+  "titulo": "nombre oficial del plato",
+  "origen": "breve descripción del origen cultural del plato en Puno o los Andes",
+  "ingredientes": "lista de ingredientes con cantidades, cada uno en una línea con • al inicio",
+  "pasos": "pasos de preparación numerados, cada paso en una línea",
+  "dato_curioso": "un dato cultural o histórico interesante sobre este plato en la región Puno"
+}`;
+
+  try {
+    const GROQ_KEY = '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';
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1024,
+        temperature: 0.5
+      })
+    });
+    const data = await res.json();
+    const raw = data.choices?.[0]?.message?.content || '{}';
+    let result = {};
+    try {
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      result = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+    } catch(parseErr) {
+      // Si no es JSON válido, mostramos el texto directo
+      result = { titulo: plato, origen: '', ingredientes: raw, pasos: '', dato_curioso: '' };
+    }
+    document.getElementById('receta-titulo').textContent = result.titulo || plato;
+    document.getElementById('receta-origen').textContent = result.origen || '';
+    document.getElementById('receta-ingredientes').innerHTML = (result.ingredientes || '—').replace(/\n/g, '<br>');
+    document.getElementById('receta-pasos').innerHTML = (result.pasos || '—').replace(/\n/g, '<br>');
+    document.getElementById('receta-dato').textContent = result.dato_curioso || '—';
+    document.getElementById('receta-resultado').style.display = 'block';
+  } catch(e) {
+    document.getElementById('receta-titulo').textContent = 'Error de conexión. Intenta de nuevo.';
+    document.getElementById('receta-resultado').style.display = 'block';
+  }
+  document.getElementById('receta-cargando').style.display = 'none';
+}
+
+// TRADUCTOR
+function traducirFrase(el) {
+  document.getElementById('textoTraducir').value = el.textContent;
+  traducir();
+}
+
+async function traducir() {
+  const texto = document.getElementById('textoTraducir').value.trim();
+  if (!texto) return;
+  document.getElementById('resultado-traduccion').style.display = 'none';
+  document.getElementById('traduciendo').style.display = 'block';
+  document.getElementById('btnTraducir').disabled = true;
+
+  const prompt = `Eres un experto en lenguas originarias andinas del altiplano peruano-boliviano. 
+Traduce el siguiente texto del español al Quechua y al Aymara.
+Texto: "${texto}"
+
+Responde SOLO en este formato JSON exacto, sin texto adicional:
+{
+  "quechua": "traducción en quechua",
+  "pronunciacion_quechua": "guía de pronunciación simple",
+  "aymara": "traducción en aymara", 
+  "pronunciacion_aymara": "guía de pronunciación simple",
+  "contexto": "breve explicación cultural de 1-2 oraciones sobre el uso de estas palabras en la cultura andina de Puno"
+}`;
+
+  try {
+    const GROQ_KEY = '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';
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_KEY },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 512,
+        temperature: 0.3
+      })
+    });
+    const data = await res.json();
+    const raw = data.choices?.[0]?.message?.content || '{}';
+    let result = {};
+    try {
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      result = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+    } catch(pe) { result = {}; }
+    document.getElementById('texto-quechua').textContent = result.quechua || '—';
+    document.getElementById('pron-quechua').textContent = '🔊 ' + (result.pronunciacion_quechua || '—');
+    document.getElementById('texto-aymara').textContent = result.aymara || '—';
+    document.getElementById('pron-aymara').textContent = '🔊 ' + (result.pronunciacion_aymara || '—');
+    document.getElementById('contexto-cultural').textContent = result.contexto || '—';
+    document.getElementById('resultado-traduccion').style.display = 'block';
+  } catch(e) {
+    document.getElementById('texto-quechua').textContent = 'Error al traducir. Intenta de nuevo.';
+    document.getElementById('resultado-traduccion').style.display = 'block';
+  }
+  document.getElementById('traduciendo').style.display = 'none';
+  document.getElementById('btnTraducir').disabled = false;
+}
+
+// PWA Install
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('install-banner').style.display = 'none';
+  }
+});
+</script>
+<script>
+// Eliminar service workers viejos para evitar caché
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    for(let r of regs) r.unregister();
+  });
+}
+</script>
+</body>
+</html>
