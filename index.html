@@ -1061,7 +1061,7 @@ async function sendMessage() {
   sonidoEnviar();
   showTyping();
   try {
-    const GROQ_KEY = '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';
+    const GROQ_KEY = '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';
     const groqMessages = [{role: 'system', content: SYSTEM}, ...history.map(m => ({role: m.role, content: m.content}))];
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
